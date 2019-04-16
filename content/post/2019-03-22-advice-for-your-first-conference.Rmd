@@ -1,0 +1,29 @@
+---
+title: Advice for your first conference from an introverted young professional.
+author: Katie Larson
+date: '2019-03-22'
+slug: advice-for-your-first-conference
+categories: []
+tags: []
+---
+
+Last month I attended ASA’s [Conference for Statistical Practice (CSP)](https://ww2.amstat.org/meetings/csp/2019/) in New Orleans. I’ve attended conferences before, but always had the security of either 1) going with my grad school cohort and having friends to sit with or 2) being at a local conference so I could leave whenever I wanted/needed and go straight home.
+
+CSP presented the first, multiple days in a far away location. Besides learning that Hadley Wickan says “lay-tek” and not “luh-tek”, here are some important things I learned that might be helpful for other mega-shy, mega-introverted, but also mega-nerdy-and-wants-to-attend-conference types of young people. (I know I’m not alone.)
+
+Conserve energy. Both before, and during. Store up energy beforehand, becuase you’re going to have to be brave.
+
+Sit by people. Duh. 
+
+[maybe a funny gif here]
+
+Ask dumb questions. Because, guess what, non-dumb questions are really hard to think of when you’re stressed.
+
+Ask soft questions. Be interested in people. Ask soft questions if hard technical questions are over your head. Listened to a woman’s presentation. Her work soudned fascnitaing, and a lot of the terms she used were familiar to me, but I still wasn’t sure what her end game was. I terrified of soudnign really stupid (side note: don’t be). But, towards the end, she mentions that she had run “a lot of sumulations” to test tuning paramenters, and something in her tone sounded familiar. Instaed of stressing trying to think of an intelligent question, I asked, “So...how many simulations did your advisor make you run?” She laughed and instantly looseded up. “Oh! It never quits! Every time I showed him results…..” I shared similar experiences from my time in school, and we bonded. Then I walked away and HIGH FIVED MYSELF for speaking more than 3 word to someone.
+
+Join group activities. Tours, dinners, etc!
+
+That’s it! I really did learn some actual *stats* at the conference. It’s always a good idea to stick your head our of your little box/.world and remember that stats is being used EVERYWHERE and for very exciting things. If you have any tips for navigating/participating in a professional community as an introvert, I’d love to hear them!
+
+[pic of new orleans?]
+
