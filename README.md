@@ -1,2 +1,1 @@
-# backyardstats
-Personal website of Katie Larson
+Personal website of Katie Larson.
