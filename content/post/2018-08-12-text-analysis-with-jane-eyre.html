@@ -9,4 +9,228 @@ tags: []
 
 
 
-
+<p>Two years ago Julia Silge posted <a href="https://juliasilge.com/blog/you-must-allow-me/">an analysis</a> combining natural language processing and Jane Austen. I was thrilled with the idea of analyzing my own favorite pieces of literature, but time got away from me. (Grad school does that.) So here we are, two years later, following Julia’s steps to analyze…<em>Jane Eyre!</em></p>
+<p><em>Jane Eyre</em> is in the <code>novels</code> dataset found in the <code>stylo</code> package.</p>
+<pre class="r"><code>library(stylo)
+data(novels)
+janeeyre_text &lt;- novels$CBronte_Jane</code></pre>
+<p>The text is already divided into paragraphs. To make the rest of the analysis easier, I identified the chapter for each paragraph and removed the title/chapter headings. <em>Jane Eyre</em> has a total of 38 chapters.</p>
+<pre class="r"><code># find the chapters
+chapters_index &lt;- which(startsWith(janeeyre_text, &quot;CHAPTER&quot;))
+# save chapter and paragraph text into dataframe
+# remove the title and chapter headings
+jane &lt;- data.frame(&quot;chapter&quot; = rep(NA, 4021), 
+                   &quot;paragraph&quot; = 1:4021, 
+                   &quot;text&quot; = rep(NA, 4021))
+row &lt;- 0
+current_chapter &lt;- 0
+for(i in 3:length(janeeyre_text)){
+  if(i %in% chapters_index){
+    current_chapter &lt;- current_chapter + 1
+  } else {
+    row &lt;- row + 1
+    jane[row, &quot;chapter&quot;] &lt;- current_chapter
+    jane[row, &quot;text&quot;] &lt;- janeeyre_text[i]
+  }
+}
+remove(janeeyre_text)</code></pre>
+<div id="do-you-think-i-am-an-automaton-a-machine-without-feelings" class="section level3">
+<h3>“Do you think I am an automaton? A machine without feelings?”</h3>
+<p>To analyze the emotions in <em>Jane Eyre</em> I took advantage of the <a href="http://saifmohammad.com/WebPages/NRC-Emotion-Lexicon.htm">NRC sentiment dictionary</a> which is implemented in the <code>syuzhet</code> package. This package has great <a href="https://cran.r-project.org/web/packages/syuzhet/vignettes/syuzhet-vignette.html">documentation</a> which is helpful for understanding what the package is capable of.</p>
+<p>The <code>get_nrc_sentiment</code> function uses the NRC sentiment dictionary to count occurrences of 8 different emotions and two sentiments (positive/negative) within the text. Here is an example using the opening line of the book.</p>
+<pre class="r"><code>library(syuzhet)
+get_nrc_sentiment(&quot;There was no possibility of taking a walk that day.&quot;)</code></pre>
+<pre><code>##   anger anticipation disgust fear joy sadness surprise trust negative
+## 1     0            1       0    0   0       0        0     0        0
+##   positive
+## 1        0</code></pre>
+<p>Hmm, not a lot of emotion. Let’s try another line from the middle of the book.</p>
+<pre class="r"><code>get_nrc_sentiment(&quot;Do you think, because I am poor, obscure, plain, and little,
+                  I am soulless and heartless? You think wrong!&quot;)</code></pre>
+<pre><code>##   anger anticipation disgust fear joy sadness surprise trust negative
+## 1     0            0       1    1   0       2        0     0        3
+##   positive
+## 1        0</code></pre>
+<p>There we go! Poor Jane thinks Mr. Rochester is getting married and she’s getting shipped off to Ireland because nobody wants her.</p>
+<p>In her blog post Julia makes a great point that these modern tools might not be appropriate for analyzing a text over 100 years old. <em>Jane Eyre</em> may also prove challenging because the main characters flirt like this:</p>
+<blockquote>
+<p>“Am I hideous, Jane?”"
+“Very, sir: you always were, you know.”"
+Nothing that screams “romance” and “joy”.</p>
+</blockquote>
+<p>Nevertheless, Jane is one of the most emotional characters I’ve ever encountered. I’m excited to see how much plot detail we can pick up! Now let’s get the sentiment scores for each paragrph and reshape the data for plotting.</p>
+<pre class="r"><code>library(dplyr)
+library(reshape2)
+# for every paragraph, get the positive and negative
+jane &lt;- cbind(jane, get_nrc_sentiment(jane[,&quot;text&quot;])[9:10])
+jane$negative &lt;- -jane$negative
+jane_pn &lt;- jane %&gt;% select(paragraph, chapter, positive, negative) %&gt;% 
+  melt(id = c(&quot;paragraph&quot;, &quot;chapter&quot;))</code></pre>
+<p>Labeling major plot points will give us some context to go off of.</p>
+<pre class="r"><code>annotatetext &lt;- data.frame(x = c(651, 1209, 2245, 2569, 3584, 3768), 
+                           y = c(20.3, 23.3, 20.3, 24.3, 20.3, 18.3), 
+                           label = c(&quot;Helen&quot;, &quot;Fire&quot;, &quot;Proposal&quot;, &quot;Wedding&quot;,
+                                     &quot;St. John&quot;, &quot;Reunited&quot;))
+annotatearrow &lt;- data.frame(x = c(651, 1209, 2245, 2569, 3584, 3768), 
+                            y1 = c(19,22,19,23,19,17), 
+                            y2 = c(12.1, 14.3, 11.4, 14.1, 11.2, 10.5))</code></pre>
+<p>Ane now we plot the positive and negative scores for each paragraph. (Many thanks to Julia for sharing her code! I have yet to master ggplot and love the way these plots look.)</p>
+<pre class="r"><code>library(ggplot2)
+ggplot(data = jane_pn, 
+       aes(x=paragraph, y=value, color=variable, fill=variable)) +
+  geom_bar(stat = &quot;identity&quot;, position = &quot;dodge&quot;) + theme_minimal() +
+  ylab(&quot;Sentiment&quot;) +
+  ggtitle(expression(paste(&quot;Positive and Negative Sentiment in &quot;, 
+                           italic(&quot;Jane Eyre&quot;)))) +
+  theme(axis.title.x=element_blank()) +
+  theme(axis.ticks.x=element_blank()) +
+  theme(axis.text.x=element_blank()) +
+  theme(legend.position=&quot;none&quot;) +
+  geom_text(data = annotatetext, aes(x,y,label=label), hjust = 0.5, 
+            size = 3, inherit.aes = FALSE) +
+  geom_segment(data = annotatearrow, 
+               aes(x = x, y = y1, xend = x, yend = y2),
+               arrow = arrow(length = unit(0.05, &quot;npc&quot;)), 
+               inherit.aes = FALSE) +
+  scale_fill_manual(values = c(&quot;goldenrod2&quot;, &quot;dodgerblue4&quot;)) +
+  scale_color_manual(values = c(&quot;goldenrod2&quot;, &quot;dodgerblue4&quot;))</code></pre>
+<p><img src="/post/2018-08-12-text-analysis-with-jane-eyre_files/figure-html/unnamed-chunk-8-1.png" width="700px" style="display: block; margin: auto;" /></p>
+<p><em>This is so cool.</em> If only my high school English teacher could see me now.</p>
+<p>The first thing I noticed were the dense negative scores after the “Wedding” mark. This is when Jane’s wedding is broken off and she runs away, gets lost, and almost starves to death.</p>
+<p>It’s a good book, I promise.</p>
+</div>
+<div id="overall-sentiment-trends" class="section level3">
+<h3>Overall Sentiment Trends</h3>
+<p>Instead of viewing both a negative and a positive score for each paragraph, what if we looked at the overall (happy + sad) sentiment?</p>
+<pre class="r"><code>jane$overall &lt;- jane$positive + jane$negative
+ggplot(data = jane, 
+       aes(x = paragraph, y = overall)) +
+  geom_bar(stat = &quot;identity&quot;, position = &quot;dodge&quot;, color = &quot;dodgerblue4&quot;) + 
+  theme_minimal() +
+  ylab(&quot;Sentiment&quot;) +
+  ggtitle(expression(paste(&quot;Overall Sentiment in &quot;, italic(&quot;Jane Eyre&quot;)))) +
+  theme(axis.title.x=element_blank()) +
+  theme(axis.ticks.x=element_blank()) +
+  theme(axis.text.x=element_blank()) +
+  theme(legend.justification=c(1,1), legend.position=c(1, 0.71)) +
+  geom_text(data = annotatetext, aes(x,y,label=label), hjust = 0.5, 
+            size = 3, inherit.aes = FALSE) +
+  geom_segment(data = annotatearrow, aes(x = x, y = y1, xend = x, yend = y2),
+               arrow = arrow(length = unit(0.05, &quot;npc&quot;)), inherit.aes = FALSE)</code></pre>
+<p><img src="/post/2018-08-12-text-analysis-with-jane-eyre_files/figure-html/unnamed-chunk-9-1.png" width="700px" style="display: block; margin: auto;" /></p>
+<p>We see the same negative spikes after “Wedding”, but I love the additional details that pop up. Jane is mostly happy during her time at Thornfield (between “Helen” and “Wedding”) but the arrival of the rude, haughty Miss Ingram causes her some distress (between “Fire” and “Proposal”). The positive spikes before “St. John” show how much Jane loves her new independent life after leaving Thornfield.</p>
+<p>To smooth out the sentiment spikes and look at the underlying plot structure, we can use a low-pass filter and the discrete cosine transformation implemented in the <code>syuzhet</code> package. Matthew Lockers, author of <code>syuzhet</code>, explains a bit more about this process in a <a href="http://www.matthewjockers.net/2017/01/12/resurrecting/">blog post</a>.</p>
+<pre class="r"><code># discrete cosine transformation w/ low-pass filter
+jane_dct &lt;- as.numeric(get_dct_transform(jane$overall, low_pass_size = 4,
+                  x_reverse_len = 100, scale_vals = T, scale_range = F))
+jane_dct &lt;- data.frame(cbind(linenumber = 1:100, dct = jane_dct))</code></pre>
+<p>You may ask, <em>“Katie, how did you know to use 4 on the low-pass filter?”</em> Great question. I tried everything from 2 to 10 and decided 4 looked the best and was the easiest to explain.</p>
+<pre class="r"><code># plot the plot!
+ggplot(data = jane_dct, aes(x = linenumber, y = dct)) +
+  geom_bar(stat = &quot;identity&quot;, alpha = 0.8, color = &quot;dodgerblue4&quot;, fill = &quot;dodgerblue4&quot;) +
+  theme_minimal() +
+  ylab(&quot;Transformed Sentiment Value&quot;) +
+  ggtitle(expression(paste(&quot;Overall Sentiment in &quot;, italic(&quot;Jane Eyre&quot;)))) +
+  theme(axis.title.x=element_blank()) +
+  theme(axis.ticks.x=element_blank()) +
+  theme(axis.text.x=element_blank()) +
+  annotate(&quot;text&quot;, size = 3, 
+           x = c(16, 30, 56, 64, 89, 94), 
+           y = c(0.6, -0.4, 0.6, 0.4, -0.6, -0.4), 
+           label = c(&quot;Helen&quot;,&quot;Fire&quot;,&quot;Proposal&quot;,&quot;Wedding&quot;,&quot;St. John&quot;,&quot;Reunited&quot;)) +
+  annotate(&quot;segment&quot;, arrow = arrow(length = unit(0.03, &quot;npc&quot;)),
+           x = c(16, 30, 56, 64, 89, 94), xend = c(16, 30, 56, 64, 89, 94),
+           y = c(0.53, -0.36, 0.53, 0.33, -0.56, -0.36), 
+           yend = c(0.02, -0.02, 0.02 , 0.02, -0.02, -0.02))</code></pre>
+<p><img src="/post/2018-08-12-text-analysis-with-jane-eyre_files/figure-html/unnamed-chunk-11-1.png" width="700px" style="display: block; margin: auto;" /></p>
+<p>Beautiful! We can see Jane’s horrible childhood, the happy early days at Thornfield, the despair after the wedding, and even the happy ending!</p>
+</div>
+<div id="analysis-by-chapter" class="section level3">
+<h3>Analysis by Chapter</h3>
+<p>Just for fun, let’s break <em>Jane Eyre</em> into chapters instead of paragraphs and calculate the 8 NRC emotion scores for each chapter.</p>
+<pre class="r"><code># break into chapters
+jane_chapters &lt;- data.frame(&quot;chapter&quot;=1:38,
+                            &quot;text&quot;= rep(&quot;NA&quot;, 38))
+jane_chapters$text &lt;- as.character(jane_chapters$text)
+for(i in 1:38){
+  index &lt;- which(jane$chapter == i)
+  jane_chapters[i,2] &lt;- paste(jane[index,&quot;text&quot;], sep = &#39;&#39;, collapse = &#39;&#39;)
+}
+# get emotions for each chapter
+jane_chapters &lt;- cbind(jane_chapters, get_nrc_sentiment(jane_chapters[,2]))
+emotions &lt;- jane_chapters %&gt;% select(chapter, anger, anticipation, disgust, 
+              fear, joy, sadness, surprise, trust) %&gt;% melt(id = c(&quot;chapter&quot;))
+names(emotions) &lt;- c(&quot;chapter&quot;, &quot;sentiment&quot;, &quot;value&quot;)
+levels(emotions$sentiment) &lt;- c(&quot;Anger&quot;, &quot;Anticipation&quot;, &quot;Disgust&quot;, &quot;Fear&quot;, 
+                                &quot;Joy&quot;, &quot;Sadness&quot;, &quot;Surprise&quot;, &quot;Trust&quot;)
+emotions$sentiment &lt;- factor(emotions$sentiment,
+                             levels(emotions$sentiment)[c(5,8,2,7,6,3,4,1)])</code></pre>
+<p>A heatmap of emotions by chapter may add to our understanding of the plot.</p>
+<pre class="r"><code>library(viridis)
+ggplot(data = emotions, aes(x = chapter, y = sentiment, fill = value)) +
+  geom_tile(color=&quot;white&quot;, size=0.1) +
+  scale_fill_viridis(name=&quot;Score&quot;) +
+  coord_equal() + 
+  labs(x=NULL, y=NULL, 
+       title=expression(paste(&quot;Emotions in &quot;, italic(&quot;Jane Eyre&quot;)))) +
+  theme(axis.ticks=element_blank(), axis.text.x=element_blank()) +
+  scale_x_discrete(expand=c(0,0)) +
+  theme(axis.text=element_text(size=6)) +
+  theme(panel.border=element_blank()) +
+  theme(legend.title=element_text(size=6)) + 
+  theme(legend.title.align=1) + 
+  theme(legend.text=element_text(size=6)) + 
+  theme(legend.position=&quot;bottom&quot;) + 
+  theme(legend.key.size=unit(0.2, &quot;cm&quot;)) + 
+  theme(legend.key.width=unit(1, &quot;cm&quot;))</code></pre>
+<p><img src="/post/2018-08-12-text-analysis-with-jane-eyre_files/figure-html/unnamed-chunk-13-1.png" width="700px" style="display: block; margin: auto;" /></p>
+<p>The brightest spot is <strong>fear</strong> in Chapter 27. This is the chapter after Jane’s wedding is canceled, and as we saw before, it is a low point in her story. She loses the love of her life, runs away from the only home she’s ever known, and nearly starves to death.</p>
+<p>Besides a few bright spots, the heatmap looks rather dark and bland. This is not the passionate Jane I know!</p>
+<p>Something to consider here is word count. Chapter 27 may have the strongest emotion, but it also has the most words at 11257! The next highest count is 9262, and numbers quickly drop off after that. The final chapter (the one with the happy ending) has only 1817 words. It seems the fear in Chapter 27 is overpowering the rest of the emotions.</p>
+<pre class="r"><code># count number of words
+words &lt;- rep(NA, 38)
+for(i in 1:38){
+  ss &lt;- gsub(&quot;[[:punct:]]&quot;, &quot;&quot;, jane_chapters[i,&quot;text&quot;])
+  words[i] &lt;- length(gregexpr(&quot; &quot;, ss)[[1]])
+}
+which(words == max(words))</code></pre>
+<pre><code>## [1] 27</code></pre>
+<pre class="r"><code>words[38]</code></pre>
+<pre><code>## [1] 1817</code></pre>
+<p>What happens when we normalize the scores?</p>
+<pre class="r"><code># recalculate emptions
+jane_chap2 &lt;- jane_chapters[,c(1,3:10)]
+for(i in 1:nrow(jane_chap2)){
+  jane_chap2[i,2:9] &lt;- jane_chap2[i,2:9]/words[i]
+}
+emotions2 &lt;- jane_chap2 %&gt;% melt(id = c(&quot;chapter&quot;))
+names(emotions2) &lt;- c(&quot;chapter&quot;, &quot;sentiment&quot;, &quot;value&quot;)
+levels(emotions2$sentiment) &lt;- c(&quot;Anger&quot;, &quot;Anticipation&quot;, &quot;Disgust&quot;, &quot;Fear&quot;, 
+                                &quot;Joy&quot;, &quot;Sadness&quot;, &quot;Surprise&quot;, &quot;Trust&quot;)
+emotions2$sentiment = factor(emotions2$sentiment,
+                             levels(emotions2$sentiment)[c(5,8,2,7,6,3,4,1)])
+# does it change?
+ggplot(data = emotions2, aes(x = chapter, y = sentiment, fill = value)) +
+  geom_tile(color=&quot;white&quot;, size=0.1) +
+  scale_fill_viridis(name=&quot;Normalized Score&quot;) +
+  coord_equal() + 
+  labs(x=NULL, y=NULL, 
+       title=expression(paste(&quot;Emotions in &quot;, italic(&quot;Jane Eyre&quot;)))) +
+  theme(axis.ticks=element_blank(), axis.text.x=element_blank()) +
+  scale_x_discrete(expand=c(0,0)) +
+  theme(axis.text=element_text(size=6)) +
+  theme(panel.border=element_blank()) +
+  theme(legend.title=element_text(size=6)) + 
+  theme(legend.title.align=1) + 
+  theme(legend.text=element_text(size=6)) + 
+  theme(legend.position=&quot;bottom&quot;) + 
+  theme(legend.key.size=unit(0.2, &quot;cm&quot;)) + 
+  theme(legend.key.width=unit(1, &quot;cm&quot;))</code></pre>
+<p><img src="/post/2018-08-12-text-analysis-with-jane-eyre_files/figure-html/unnamed-chunk-15-1.png" width="700px" style="display: block; margin: auto;" /></p>
+<p>There’s the happy ending! The brightest emotion is now <strong>trust</strong> in the final chapter. Jane is given a fortune, reunited with Mr. Rochester, and surrounds herself with the people she loves.</p>
+<p>The second strongest emotion is <strong>fear</strong> in Chapter 2, when 10-year-old Jane is locked in a haunted room and faints from sheer terror. It is interesting that after accounting for number of words the emotions of this childhood event surpass any anger, fear, or sadness that Jane experiences for the rest of the novel.</p>
+</div>
+<div id="reader-i-married-him." class="section level3">
+<h3>“Reader, I married him.”</h3>
+<p>You made it to the end! Thanks for sticking with me. As always, comments and feedback are welcomed. This was a fun project for me, and I easily could have made it 10x longer if I explored all the text analysis/natural language processing tools I wanted to. What are your favorites? What should I try next?</p>
+</div>
