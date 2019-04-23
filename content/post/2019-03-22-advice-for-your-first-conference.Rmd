@@ -5,15 +5,16 @@ date: '2019-03-22'
 slug: advice-for-your-first-conference
 categories: []
 tags: []
+draft: TRUE
 ---
 
-Last month I attended ASA’s [Conference for Statistical Practice (CSP)](https://ww2.amstat.org/meetings/csp/2019/) in New Orleans. I’ve attended conferences before, but always had the security of either 1) going with my grad school cohort and having friends to sit with or 2) being at a local conference so I could leave whenever I wanted/needed and go straight home.
+Last month I attended ASA’s [Conference for Statistical Practice (CSP)](https://ww2.amstat.org/meetings/csp/2019/) in New Orleans. I’ve attended conferences before but always had the security of either 1) going with my grad school cohort and having friends to sit with or 2) being at a local conference so I could leave whenever I wanted/needed and go straight home.
 
-CSP presented the first, multiple days in a far away location. Besides learning that Hadley Wickan says “lay-tek” and not “luh-tek”, here are some important things I learned that might be helpful for other mega-shy, mega-introverted, but also mega-nerdy-and-wants-to-attend-conference types of young people. (I know I’m not alone.)
+CSP was the first conference I attended without my safety nets. Besides realizing that Hadley Wickan says “lay-tek” and not “luh-tek”, here are some things I learned that might be helpful for other mega-shy, mega-introverted, but also mega-nerdy-and-wants-to-attend-conferences young professionals. (I know I’m not alone.)
 
-Conserve energy. Both before, and during. Store up energy beforehand, becuase you’re going to have to be brave.
+**Conserve energy.** Both before, and during. Store up energy beforehand, becuase you’re going to have to be brave.
 
-Sit by people. Duh. 
+**Sit by people.** Duh. 
 
 [maybe a funny gif here]
 
