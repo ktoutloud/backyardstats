@@ -5,28 +5,25 @@ date: '2019-03-22'
 slug: advice-for-your-first-conference
 categories: []
 tags: []
-draft: FALSE
+draft: TRUE
 ---
 
 Last month I attended ASA’s [Conference for Statistical Practice (CSP)](https://ww2.amstat.org/meetings/csp/2019/) in New Orleans. I’ve attended conferences before but always had the security of either 1) going with friends or 2) being at a local conference so I could leave whenever I wanted/needed and go straight home.
 
-CSP was the first conference I attended without my safety nets. Besides realizing that Hadley Wickan says “lay-tek” and not “luh-tek”, here are some things I learned that might be helpful for other mega-shy, mega-introverted, but also mega-nerdy-and-wants-to-attend-conferences young professionals. (I know I’m not alone.)
+CSP was the first conference I attended without my safety nets. Besides realizing that Hadley Wickan says “lay-tek” and not “luh-tek”, here are some cool things I learned that might be helpful for other mega-shy, mega-introverted, but also mega-nerdy-and-wants-to-attend-conferences young professionals. (I know I’m not alone.)
 
 ![](https://media.giphy.com/media/jjiZrAGCkecOA/giphy.gif)
 
-**Conserve energy.** Both before, and during. Store up energy beforehand, becuase you’re going to have to be brave.
+**Conserve energy.** Before the conference, make sure you get enough sleep. Eat right. Do things to reach a calm/happy state. Store up some social energy, because you will have to be brave.
 
-**Sit by people.** Duh. 
+**Sit by people.** If you are attending a presentation alone, sit by someone else who is alone. Shake their hand, smile, and introduce yourself. There, you did it. You can spend the next five hours or so in total silence, proud of that small moment. 
 
-[maybe a funny gif here]
+**Ask dumb questions.** I often get stuck in a mindset where I only want to ask smart, deep, technical questions. Why? Because everyone else seems to know what's going on, and if I say "Oh, I've never heard of xyz and I don't understand what you're talking about" then the whole world will know I'm a fraud!!! *Gasp.* Deep breath, take a step back. We go to conferences to learn new things! Go ahead and ask the dumb questions.
 
-**Ask dumb questions.** Because, guess what, non-dumb questions are really hard to think of when you’re stressed.
+**Ask soft questions.** If someone's work is way over your head and you can't even think of dumb questions, then ask "soft" questions. Meaning it's ok to be interested in people and not their projects. At CSP I stopped at a woman's poster and listened to her presentation. Her work sounded fascinating there was one poster I stopped Listened to a woman’s presentation. Her work soudned fascnitaing, and a lot of the terms she used were familiar to me, but I still wasn’t sure what her end game was. I terrified of soudnign really stupid (side note: don’t be). But, towards the end, she mentions that she had run “a lot of sumulations” to test tuning paramenters, and something in her tone sounded familiar. Instaed of stressing trying to think of an intelligent question, I asked, “So...how many simulations did your advisor make you run?” She laughed and instantly looseded up. “Oh! It never quits! Every time I showed him results…..” I shared similar experiences from my time in school, and we bonded. Then I walked away and HIGH FIVED MYSELF for speaking more than 3 word to someone.
 
-**Ask soft questions.** Be interested in people. Ask soft questions if hard technical questions are over your head. Listened to a woman’s presentation. Her work soudned fascnitaing, and a lot of the terms she used were familiar to me, but I still wasn’t sure what her end game was. I terrified of soudnign really stupid (side note: don’t be). But, towards the end, she mentions that she had run “a lot of sumulations” to test tuning paramenters, and something in her tone sounded familiar. Instaed of stressing trying to think of an intelligent question, I asked, “So...how many simulations did your advisor make you run?” She laughed and instantly looseded up. “Oh! It never quits! Every time I showed him results…..” I shared similar experiences from my time in school, and we bonded. Then I walked away and HIGH FIVED MYSELF for speaking more than 3 word to someone.
+![](https://media.giphy.com/media/cJgkhpLgsuTkY/giphy.gif)
 
 **Join group activities.** Tours, dinners, etc!
 
 **That’s it!** I really did learn some actual *stats* at the conference. It’s always a good idea to stick your head our of your little box/.world and remember that stats is being used EVERYWHERE and for very exciting things. If you have any tips for navigating/participating in a professional community as an introvert, I’d love to hear them!
-
-[pic of new orleans?]
-
