@@ -1,0 +1,240 @@
+---
+title: Strange names in Stranger Things
+author: Katie Larson
+date: '2019-07-20'
+slug: stranger-baby-names
+categories: []
+tags: []
+draft: TRUE
+---
+
+<link href="/rmarkdown-libs/pagedtable/css/pagedtable.css" rel="stylesheet" />
+<script src="/rmarkdown-libs/pagedtable/js/pagedtable.js"></script>
+
+
+<p>Every year the statistics department at BYU holds a conference called the Summer Institute of Apllied Statistics. <a href="https://resources.rstudio.com/authors/garrett-grolemund">Dr. Garrett Grolemund</a> presented this year. He introduced the <a href="https://www.tidyverse.org/">tidyverse</a> and discussed reproducible research. I started using the tidyverse at work last year and am comfortable with the tools, but it was wonderful to have them taught in one comprehensive setting. Garrett is a talented instructer, so as a bonus I also picked up a lot of teaching tips!</p>
+<p>During the conference we often used the <code>babynames</code> dataset for our examples. After analyzing my own name “Katie” in every way possible, I began pulling out names of Stranger Things characters. The result was a fun little analysis that feels worth sharing. You’ve already finished watching season 3. What else is there to do but troll the internet and read my blog post?</p>
+<center>
+<img src="https://media.giphy.com/media/xT1TU14CVEsPo5fxEQ/giphy.gif" />
+</center>
+<div id="popular-baby-names" class="section level3">
+<h3>Popular baby names</h3>
+<p>We begin by loading the <code>tidyverse</code> and <code>babynames</code> packages. The <code>babynames</code> dataset comes from the Social Security Administration (SSA) and contains information on names from 1880 to 2017.</p>
+<pre class="r"><code>library(tidyverse)
+library(babynames)
+rmarkdown::paged_table(head(babynames))</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["year"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["sex"],"name":[2],"type":["chr"],"align":["left"]},{"label":["name"],"name":[3],"type":["chr"],"align":["left"]},{"label":["n"],"name":[4],"type":["int"],"align":["right"]},{"label":["prop"],"name":[5],"type":["dbl"],"align":["right"]}],"data":[{"1":"1880","2":"F","3":"Mary","4":"7065","5":"0.07238359"},{"1":"1880","2":"F","3":"Anna","4":"2604","5":"0.02667896"},{"1":"1880","2":"F","3":"Emma","4":"2003","5":"0.02052149"},{"1":"1880","2":"F","3":"Elizabeth","4":"1939","5":"0.01986579"},{"1":"1880","2":"F","3":"Minnie","4":"1746","5":"0.01788843"},{"1":"1880","2":"F","3":"Margaret","4":"1578","5":"0.01616720"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>How do we calculate popularity? Using raw counts <code>n</code> in the dataset) would be easy but may not camture the information we want, since the total number of babies changes from year to year. If the name Mike is given to 10 babies in year 1 and 17 babies in year 2, is the name more popular or are more babies applying for social security?</p>
+<p>The proportion <code>prop</code> of each name for a gender in a given year has a similar problem. The name Mike could be the most popular male name in year 1 and year 2, but the proportion could drop if there are simply more male names to choose from in year 2.</p>
+<p>Instead of using counts or proportions, we can calculate the rank of a name during each year. Comparing rank over the years will give us a consistent way to track popularity. For example, here are the top 3 male names in 2016 and 2017:</p>
+<pre class="r"><code>babynames %&gt;%
+  filter(sex == &quot;M&quot;) %&gt;%
+  filter(year &gt;= 2016) %&gt;%
+  group_by(year) %&gt;%
+  mutate(rank = min_rank(desc(prop))) %&gt;%
+  filter(rank &lt;= 3)</code></pre>
+<pre><code>## # A tibble: 6 x 6
+## # Groups:   year [2]
+##    year sex   name        n    prop  rank
+##   &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;   &lt;int&gt;   &lt;dbl&gt; &lt;int&gt;
+## 1  2016 M     Noah    19082 0.00946     1
+## 2  2016 M     Liam    18198 0.00902     2
+## 3  2016 M     William 15739 0.00780     3
+## 4  2017 M     Liam    18728 0.00954     1
+## 5  2017 M     Noah    18326 0.00933     2
+## 6  2017 M     William 14904 0.00759     3</code></pre>
+<p>William is #3 both years, although the number <code>n</code> and proportion <code>prop</code> change from 2016 to 2017.</p>
+</div>
+<div id="how-strange-are-stranger-things-names" class="section level3">
+<h3>How strange are Stranger Things names?</h3>
+<p>Similar to <a href="https://www.vulture.com/2016/07/stranger-things-80s-names.html">this article</a>, I was interested in how appropriate Stranger Things character names are for a show set in the 80s. Let’s calculate the rank for Mike, Dustin, Lucas, Will, Eleven, and Max from 1950 to 2017.</p>
+<pre class="r"><code>strange &lt;- babynames %&gt;%
+  filter(year &gt;= 1950) %&gt;%
+  group_by(year, sex) %&gt;%
+  mutate(rank = min_rank(desc(prop))) %&gt;%
+  ungroup() %&gt;%
+  filter((sex == &quot;M&quot; &amp; name %in% c(&quot;Michael&quot;,&quot;Dustin&quot;,&quot;Lucas&quot;,&quot;William&quot;)) |
+           (sex == &quot;F&quot; &amp; name %in% c(&quot;Jane&quot;,&quot;Maxine&quot;))) %&gt;%
+  arrange(rank, sex)</code></pre>
+<p>Note that I’m using the longer versions of names when availale, such as Michael for Mike. I’ve also included the name Jane since Eleven only appears once in the data (2017 with 7 female babies).</p>
+<p>Acorrdingg to the <a href="https://strangerthings.fandom.com/wiki/Stranger_Things_Wiki">Stranger Things Wiki</a> Mike, Dustin, Lucas, Will, Eleven, and Max were all born in 1971. What was their name rank in 1971?</p>
+<pre class="r"><code>rmarkdown::paged_table(strange %&gt;% filter(year==1971))</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["year"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["sex"],"name":[2],"type":["chr"],"align":["left"]},{"label":["name"],"name":[3],"type":["chr"],"align":["left"]},{"label":["n"],"name":[4],"type":["int"],"align":["right"]},{"label":["prop"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["rank"],"name":[6],"type":["int"],"align":["right"]}],"data":[{"1":"1971","2":"M","3":"Michael","4":"77591","5":"0.04267038","6":"1"},{"1":"1971","2":"M","3":"William","4":"35432","5":"0.01948547","6":"7"},{"1":"1971","2":"M","3":"Dustin","4":"1471","5":"0.00080896","6":"181"},{"1":"1971","2":"F","3":"Jane","4":"1297","5":"0.00074014","6":"232"},{"1":"1971","2":"M","3":"Lucas","4":"199","5":"0.00010944","6":"579"},{"1":"1971","2":"F","3":"Maxine","4":"197","5":"0.00011242","6":"749"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>To put this in perspective, there were 5655 male names and 9638 female names in 1971. Our character names range from #1 to #749 that same year. To me, these seem like entirely realistic names for teenagers in the 1980s.</p>
+<p>We can also look at the cumulative proportion for each rank to see just how strange Lucas is at #579 and Maxine at #749.</p>
+<pre class="r"><code>names1971 &lt;- babynames %&gt;%
+  filter(year==1971) %&gt;%
+  group_by(sex) %&gt;%
+  mutate(rank = min_rank(desc(prop))) %&gt;%
+  arrange(rank, prop) %&gt;%
+  mutate(cumulative_prop = cumsum(prop)) %&gt;%
+  ungroup()
+
+names1971 %&gt;%
+  ggplot(aes(x=rank, y=cumulative_prop, col=sex)) +
+  geom_line() +
+  theme_bw() +
+  labs(title=&quot;Cumulative Proportion of 1971 Babies by Name Rank&quot;, x=&quot;Rank&quot;, y=&quot;Cumulative Proportion&quot;, fill=&quot;Sex&quot;)</code></pre>
+<p><img src="/post/2019-06-19-stranger-baby-names_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<p>This graph helps us realize that female names are more diverse than male names (at least in 1971). It take fewer male names to reach a given cumulative proportion than it does female names. If we look at the names Lucas and Maxine specifically we see that the 579th highest ranked male names account for 90.7% of male babies, while the 749th highest ranked female names account for only 83.2% of female babies. LUCAS IS MORE STRANGE</p>
+<pre class="r"><code>names1971 %&gt;% 
+  group_by(sex) %&gt;% 
+  filter(name %in% c(&quot;Lucas&quot;,&quot;Maxine&quot;)) %&gt;% 
+  filter(rank == min(rank))</code></pre>
+<pre><code>## # A tibble: 2 x 7
+## # Groups:   sex [2]
+##    year sex   name       n     prop  rank cumulative_prop
+##   &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;  &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;           &lt;dbl&gt;
+## 1  1971 M     Lucas    199 0.000109   579           0.907
+## 2  1971 F     Maxine   197 0.000112   749           0.832</code></pre>
+</div>
+<div id="strange-names-over-time" class="section level3">
+<h3>Strange names over time</h3>
+<p>And how do the name ranks for these characters change from 1950 on? We can flip the y-axis so that the highest rank (#1) is at the top of the graph, and lower ranks are at the bottom.</p>
+<pre class="r"><code>strange %&gt;%
+  ggplot(aes(x=year, y=rank, group=name, col=name)) +
+  geom_line() +
+  geom_vline(xintercept=1971,col=&quot;red&quot;) +
+  scale_y_continuous(trans = &quot;reverse&quot;) +
+  theme_bw() +
+  labs(title=&quot;Popularity of Stranger Things names&quot;, x=&quot;Year&quot;, y=&quot;Rank&quot;, fill=&quot;Name&quot;)</code></pre>
+<p><img src="/post/2019-06-19-stranger-baby-names_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<p>Michael was the #1 boy’s name from 1954 to 1959 and again from 1961 to 1998 (briefly dropping to #2 in 1960). In 2017 it was #12. William is another common boy name, staying in the top 20 from 1950 to 2017.</p>
+<p>The names Dustin and Lucas follow a similar trajectory in the early years. Each was on the rise in 1971. Dustin peaks in 1984 and 1985 at #41, and then begins to drop after abotu 1995. Lucas however continues to climb, reaching #11 in 2017.</p>
+<p>Maxine and Jane were both falling in popularity in 1971. Maxine hits its lowest rank in 2006 at #1637. Jane remained consistanly more popular than Maxine, falling to only #477 (also in 2006).</p>
+</div>
+<div id="how-2000s-are-stranger-things-actor-names" class="section level3">
+<h3>How 2000s are Stranger Things actor names?</h3>
+<pre class="r"><code>strange &lt;- babynames %&gt;%
+  filter(year &gt;= 1950) %&gt;%
+  group_by(year, sex) %&gt;%
+  mutate(rank = min_rank(desc(prop))) %&gt;%
+  ungroup() %&gt;%
+  filter((sex == &quot;M&quot; &amp; name %in% c(&quot;Michael&quot;, &quot;Finn&quot;, &quot;Dustin&quot;, &quot;Gaten&quot;, &quot;Lucas&quot;, &quot;Caleb&quot;, &quot;William&quot;, &quot;Noah&quot;)) |
+           (sex == &quot;F&quot; &amp; name %in% c(&quot;Jane&quot;, &quot;Millie&quot;, &quot;Maxine&quot;, &quot;Sadie&quot;))) %&gt;%
+  mutate(group = case_when(
+    name %in% c(&quot;Michael&quot;,&quot;Dustin&quot;,&quot;Lucas&quot;,&quot;William&quot;,&quot;Jane&quot;,&quot;Maxine&quot;) ~ &quot;Character&quot;,
+    TRUE ~ &quot;Actor&quot;)) %&gt;%
+  mutate(pair = case_when(
+    name %in% c(&quot;Michael&quot;,&quot;Finn&quot;) ~ &quot;Mike/Finn&quot;,
+    name %in% c(&quot;Dustin&quot;,&quot;Gaten&quot;) ~ &quot;Dustin/Gaten&quot;,
+    name %in% c(&quot;Lucas&quot;,&quot;Caleb&quot;) ~ &quot;Lucas/Caleb&quot;,
+    name %in% c(&quot;William&quot;,&quot;Noah&quot;) ~ &quot;Will/Noah&quot;,
+    name %in% c(&quot;Jane&quot;,&quot;Millie&quot;) ~ &quot;Jane/Millie&quot;,
+    name %in% c(&quot;Maxine&quot;,&quot;Sadie&quot;) ~ &quot;Maxine/Sadie&quot;,
+    TRUE ~ &quot;ERROR&quot;))
+knitr::kable(head(strange))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="right">year</th>
+<th align="left">sex</th>
+<th align="left">name</th>
+<th align="right">n</th>
+<th align="right">prop</th>
+<th align="right">rank</th>
+<th align="left">group</th>
+<th align="left">pair</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">1950</td>
+<td align="left">F</td>
+<td align="left">Jane</td>
+<td align="right">8963</td>
+<td align="right">0.0050966</td>
+<td align="right">39</td>
+<td align="left">Character</td>
+<td align="left">Jane/Millie</td>
+</tr>
+<tr class="even">
+<td align="right">1950</td>
+<td align="left">F</td>
+<td align="left">Maxine</td>
+<td align="right">1251</td>
+<td align="right">0.0007114</td>
+<td align="right">213</td>
+<td align="left">Character</td>
+<td align="left">Maxine/Sadie</td>
+</tr>
+<tr class="odd">
+<td align="right">1950</td>
+<td align="left">F</td>
+<td align="left">Sadie</td>
+<td align="right">314</td>
+<td align="right">0.0001786</td>
+<td align="right">458</td>
+<td align="left">Actor</td>
+<td align="left">Maxine/Sadie</td>
+</tr>
+<tr class="even">
+<td align="right">1950</td>
+<td align="left">F</td>
+<td align="left">Millie</td>
+<td align="right">184</td>
+<td align="right">0.0001046</td>
+<td align="right">622</td>
+<td align="left">Actor</td>
+<td align="left">Jane/Millie</td>
+</tr>
+<tr class="odd">
+<td align="right">1950</td>
+<td align="left">M</td>
+<td align="left">Michael</td>
+<td align="right">65151</td>
+<td align="right">0.0358156</td>
+<td align="right">4</td>
+<td align="left">Character</td>
+<td align="left">Mike/Finn</td>
+</tr>
+<tr class="even">
+<td align="right">1950</td>
+<td align="left">M</td>
+<td align="left">William</td>
+<td align="right">60690</td>
+<td align="right">0.0333633</td>
+<td align="right">6</td>
+<td align="left">Character</td>
+<td align="left">Will/Noah</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>rmarkdown::paged_table(head(strange))</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["year"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["sex"],"name":[2],"type":["chr"],"align":["left"]},{"label":["name"],"name":[3],"type":["chr"],"align":["left"]},{"label":["n"],"name":[4],"type":["int"],"align":["right"]},{"label":["prop"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["rank"],"name":[6],"type":["int"],"align":["right"]},{"label":["group"],"name":[7],"type":["chr"],"align":["left"]},{"label":["pair"],"name":[8],"type":["chr"],"align":["left"]}],"data":[{"1":"1950","2":"F","3":"Jane","4":"8963","5":"0.00509662","6":"39","7":"Character","8":"Jane/Millie"},{"1":"1950","2":"F","3":"Maxine","4":"1251","5":"0.00071135","6":"213","7":"Character","8":"Maxine/Sadie"},{"1":"1950","2":"F","3":"Sadie","4":"314","5":"0.00017855","6":"458","7":"Actor","8":"Maxine/Sadie"},{"1":"1950","2":"F","3":"Millie","4":"184","5":"0.00010463","6":"622","7":"Actor","8":"Jane/Millie"},{"1":"1950","2":"M","3":"Michael","4":"65151","5":"0.03581561","6":"4","7":"Character","8":"Mike/Finn"},{"1":"1950","2":"M","3":"William","4":"60690","5":"0.03336326","6":"6","7":"Character","8":"Will/Noah"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<pre class="r"><code>strange %&gt;%
+  ggplot() +
+  geom_line(aes(x=year, y=rank, group=name, col=pair)) +
+  geom_point(aes(x=year, y=rank, col=pair, shape=group)) +
+  geom_vline(xintercept=2002,col=&quot;red&quot;) +
+   geom_vline(xintercept=1971,col=&quot;red&quot;) +
+    scale_y_continuous(trans = &quot;reverse&quot;) +
+  theme_bw() +
+  labs(title=&quot;Popularity of Stranger Things names&quot;,
+      x=&quot;Year&quot;, y=&quot;Number of Babies&quot;)</code></pre>
+<p><img src="/post/2019-06-19-stranger-baby-names_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<pre class="r"><code>ggplot(data = filter(strange, year &gt;= 1960)) +
+  geom_line(aes(x=year, y=rank, group=name, col=pair)) +
+  geom_point(aes(x=year, y=rank, col=group, shape=group)) +
+  geom_vline(xintercept=2002,col=&quot;red&quot;) +
+   geom_vline(xintercept=1971,col=&quot;red&quot;) +
+    scale_y_continuous(trans = &quot;reverse&quot;) +
+  facet_grid(pair ~ .) +
+  theme_bw() +
+  labs(title=&quot;Names of Stranger Things characters&quot;,
+      x=&quot;Year&quot;, y=&quot;Number of Babies&quot;)</code></pre>
+<p><img src="/post/2019-06-19-stranger-baby-names_files/figure-html/unnamed-chunk-9-2.png" width="672" /></p>
+<p>The top 100 names account for what percentrage????</p>
+</div>

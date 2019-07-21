@@ -1,0 +1,175 @@
+---
+title: Strange names in Stranger Things
+author: Katie Larson
+date: '2019-07-20'
+slug: stranger-baby-names
+categories: []
+tags: []
+draft: TRUE
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+```
+
+
+Every year the statistics department at BYU holds a conference called the Summer Institute of Apllied Statistics. [Dr. Garrett Grolemund](https://resources.rstudio.com/authors/garrett-grolemund) presented this year. He introduced the [tidyverse](https://www.tidyverse.org/) and discussed reproducible research. I started using the tidyverse at work last year and am comfortable with the tools, but it was wonderful to have them taught in one comprehensive setting. Garrett is a talented instructer, so as a bonus I also picked up a lot of teaching tips!
+
+During the conference we often used the `babynames` dataset for our examples. After analyzing my own name "Katie" in every way possible, I began pulling out names of Stranger Things characters. The result was a fun little analysis that feels worth sharing. You've already finished watching season 3. What else is there to do but troll the internet and read my blog post?
+
+<center>
+![](https://media.giphy.com/media/xT1TU14CVEsPo5fxEQ/giphy.gif)
+</center>
+
+### Popular baby names
+
+We begin by loading the `tidyverse` and `babynames` packages. The `babynames` dataset comes from the Social Security Administration (SSA) and contains information on names from 1880 to 2017. 
+
+```{r}
+library(tidyverse)
+library(babynames)
+rmarkdown::paged_table(head(babynames))
+```
+
+How do we calculate popularity? Using raw counts `n` in the dataset) would be easy but may not camture the information we want, since the total number of babies changes from year to year. If the name Mike is given to 10 babies in year 1 and 17 babies in year 2, is the name more popular or are more babies applying for social security?
+
+The proportion `prop` of each name for a gender in a given year has a similar problem. The name Mike could be the most popular male name in year 1 and year 2, but the proportion could drop if there are simply more male names to choose from in year 2.
+
+Instead of using counts or proportions, we can calculate the rank of a name during each year. Comparing rank over the years will give us a consistent way to track popularity. For example, here are the top 3 male names in 2016 and 2017:
+
+```{r}
+babynames %>%
+  filter(sex == "M") %>%
+  filter(year >= 2016) %>%
+  group_by(year) %>%
+  mutate(rank = min_rank(desc(prop))) %>%
+  filter(rank <= 3)
+  
+```
+
+William is #3 both years, although the number `n` and proportion `prop` change from 2016 to 2017.
+
+### How strange are Stranger Things names?
+
+Similar to [this article](https://www.vulture.com/2016/07/stranger-things-80s-names.html), I was interested in how appropriate Stranger Things character names are for a show set in the 80s. Let's calculate the rank for Mike, Dustin, Lucas, Will, Eleven, and Max from 1950 to 2017.
+
+```{r}
+strange <- babynames %>%
+  filter(year >= 1950) %>%
+  group_by(year, sex) %>%
+  mutate(rank = min_rank(desc(prop))) %>%
+  ungroup() %>%
+  filter((sex == "M" & name %in% c("Michael","Dustin","Lucas","William")) |
+           (sex == "F" & name %in% c("Jane","Maxine"))) %>%
+  arrange(rank, sex)
+```
+
+Note that I'm using the longer versions of names when availale, such as Michael for Mike. I've also included the name Jane since Eleven only appears once in the data (2017 with 7 female babies).
+
+Acorrdingg to the [Stranger Things Wiki](https://strangerthings.fandom.com/wiki/Stranger_Things_Wiki) Mike, Dustin, Lucas, Will, Eleven, and Max were all born in 1971. What was their name rank in 1971?
+
+```{r}
+rmarkdown::paged_table(strange %>% filter(year==1971))
+```
+
+To put this in perspective, there were `r nrow(babynames %>% filter(year==1971 & sex=="M") %>% distinct(name))` male names and `r nrow(babynames %>% filter(year==1971 & sex=="F") %>% distinct(name))` female names in 1971. Our character names range from #1 to #749 that same year. To me, these seem like entirely realistic names for teenagers in the 1980s.
+
+We can also look at the cumulative proportion for each rank to see just how strange Lucas is at #579 and Maxine at #749.
+
+```{r}
+names1971 <- babynames %>%
+  filter(year==1971) %>%
+  group_by(sex) %>%
+  mutate(rank = min_rank(desc(prop))) %>%
+  arrange(rank, prop) %>%
+  mutate(cumulative_prop = cumsum(prop)) %>%
+  ungroup()
+
+names1971 %>%
+  ggplot(aes(x=rank, y=cumulative_prop, col=sex)) +
+  geom_line() +
+  theme_bw() +
+  labs(title="Cumulative Proportion of 1971 Babies by Name Rank", x="Rank", y="Cumulative Proportion", fill="Sex")
+```
+
+This graph helps us realize that female names are more diverse than male names (at least in 1971). It take fewer male names to reach a given cumulative proportion than it does female names. If we look at the names Lucas and Maxine specifically we see that the 579th highest ranked male names account for 90.7% of male babies, while the 749th highest ranked female names account for only 83.2% of female babies. LUCAS IS MORE STRANGE
+
+```{r}
+names1971 %>% 
+  group_by(sex) %>% 
+  filter(name %in% c("Lucas","Maxine")) %>% 
+  filter(rank == min(rank))
+```
+
+### Strange names over time
+
+And how do the name ranks for these characters change from 1950 on? We can flip the y-axis so that the highest rank (#1) is at the top of the graph, and lower ranks are at the bottom.
+
+```{r}
+strange %>%
+  ggplot(aes(x=year, y=rank, group=name, col=name)) +
+  geom_line() +
+  geom_vline(xintercept=1971,col="red") +
+  scale_y_continuous(trans = "reverse") +
+  theme_bw() +
+  labs(title="Popularity of Stranger Things names", x="Year", y="Rank", fill="Name")
+```
+
+Michael was the #1 boy's name from 1954 to 1959 and again from 1961 to 1998 (briefly dropping to #2 in 1960). In 2017 it was #12. William is another common boy name, staying in the top 20 from 1950 to 2017.
+
+The names Dustin and Lucas follow a similar trajectory in the early years. Each was on the rise in 1971. Dustin peaks in 1984 and 1985 at #41, and then begins to drop after abotu 1995. Lucas however continues to climb, reaching #11 in 2017.
+
+Maxine and Jane were both falling in popularity in 1971. Maxine hits its lowest rank in 2006 at #1637. Jane remained consistanly more popular than Maxine, falling to only #477 (also in 2006).
+
+### How 2000s are Stranger Things actor names?
+
+```{r}
+strange <- babynames %>%
+  filter(year >= 1950) %>%
+  group_by(year, sex) %>%
+  mutate(rank = min_rank(desc(prop))) %>%
+  ungroup() %>%
+  filter((sex == "M" & name %in% c("Michael", "Finn", "Dustin", "Gaten", "Lucas", "Caleb", "William", "Noah")) |
+           (sex == "F" & name %in% c("Jane", "Millie", "Maxine", "Sadie"))) %>%
+  mutate(group = case_when(
+    name %in% c("Michael","Dustin","Lucas","William","Jane","Maxine") ~ "Character",
+    TRUE ~ "Actor")) %>%
+  mutate(pair = case_when(
+    name %in% c("Michael","Finn") ~ "Mike/Finn",
+    name %in% c("Dustin","Gaten") ~ "Dustin/Gaten",
+    name %in% c("Lucas","Caleb") ~ "Lucas/Caleb",
+    name %in% c("William","Noah") ~ "Will/Noah",
+    name %in% c("Jane","Millie") ~ "Jane/Millie",
+    name %in% c("Maxine","Sadie") ~ "Maxine/Sadie",
+    TRUE ~ "ERROR"))
+knitr::kable(head(strange))
+rmarkdown::paged_table(head(strange))
+```
+
+
+```{r}
+strange %>%
+  ggplot() +
+  geom_line(aes(x=year, y=rank, group=name, col=pair)) +
+  geom_point(aes(x=year, y=rank, col=pair, shape=group)) +
+  geom_vline(xintercept=2002,col="red") +
+   geom_vline(xintercept=1971,col="red") +
+    scale_y_continuous(trans = "reverse") +
+  theme_bw() +
+  labs(title="Popularity of Stranger Things names",
+      x="Year", y="Number of Babies")
+
+ggplot(data = filter(strange, year >= 1960)) +
+  geom_line(aes(x=year, y=rank, group=name, col=pair)) +
+  geom_point(aes(x=year, y=rank, col=group, shape=group)) +
+  geom_vline(xintercept=2002,col="red") +
+   geom_vline(xintercept=1971,col="red") +
+    scale_y_continuous(trans = "reverse") +
+  facet_grid(pair ~ .) +
+  theme_bw() +
+  labs(title="Names of Stranger Things characters",
+      x="Year", y="Number of Babies")
+```
+
+The top 100 names account for what percentrage????
+
