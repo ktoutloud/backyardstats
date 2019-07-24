@@ -156,7 +156,7 @@ Looks like all the names were increasing in popularity in 2000! All but Gaten, t
 
 ## What's in a name?
 
-We could have been more rigorous in our definition of what counts as a "strange" baby name, perhaps looking at quantiles or running a statistical test. However, these plots were enough to see the trends and allowed me to practice tidyverse tools from the workshop. What pop culture names would you want to analyze?
+I used this quick analysis to practice the tidyverse tools from Garrett's workshop. What else could I have done? How would you define a "strange" baby name using this data? Let me know, and maybe I'll post a part 2!
 
 ```{r include=FALSE, eval=FALSE}
 ggplot(data = filter(strange, year >= 1960)) +
