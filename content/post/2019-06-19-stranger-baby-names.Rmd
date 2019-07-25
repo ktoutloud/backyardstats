@@ -156,7 +156,7 @@ Looks like all the names were increasing in popularity in 2000! All but Gaten, t
 
 ## What's in a name?
 
-I used this quick analysis to practice the tidyverse tools from Garrett's workshop. What else could I have done? How would you define a "strange" baby name using this data? Let me know, and maybe I'll post a part 2!
+I used this quick analysis to practice the tidyverse tools from Garrett's workshop. What else could I have done? How would you define a "strange" baby name using this data? Let me know and maybe I'll post a part 2!
 
 ```{r include=FALSE, eval=FALSE}
 ggplot(data = filter(strange, year >= 1960)) +
