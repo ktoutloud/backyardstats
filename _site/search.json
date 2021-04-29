@@ -3,17 +3,16 @@
     {
       "path": "about.html",
       "title": "About this blog",
-      "description": "Some additional details about the blog",
       "author": [],
-      "contents": "\r\nWelcome! My name is Katie. I teach statistics and data science classes at Brigham Young University - Idaho. I love math, classic literature, sunshine, food, and any combination thereof. (math + pizza)\r\nThe name “Backyard Statistics” is a reference to John Tukey’s famous quote:\r\nThe best thing about being a statistician is that you get to play in everyone’s backyard.\r\nBesides the usual interpretation (that statistics can be used in any field of work) I also enjoy the visual it brings to mind: a group of statisticians, dressed in their best explorer outfits, eagerly digging a hole in the backyard to unearth a significant trend or insight. As Calvin says, “There’s treasure everywhere!”\r\n\r\nThis blog acts as a backyard for me to explore in, make mistakes, learn new things, and keep my enthusiasm for playing with statistics.\r\n\r\n\r\n\r\n",
-      "last_modified": "2021-04-29T13:47:40-06:00"
+      "contents": "\r\nWelcome! My name is Katie. I teach statistics and data science at Brigham Young University - Idaho. I love math, all genres of books, sunshine, food, and any combination thereof (such as math + pizza)\r\nThe name “Backyard Statistics” is a reference to John Tukey’s famous quote:\r\n“The best thing about being a statistician is that you get to play in everyone’s backyard.”\r\nBesides the usual interpretation (that statistics can be used in any field of work) I also enjoy the visual it brings to mind: a group of statisticians, dressed in their best explorer outfits, eagerly digging a hole in the backyard to unearth a significant trend or insight. As Calvin says, “There’s treasure everywhere!”\r\nThis blog acts as a backyard for me to explore in, make mistakes, learn new things, and keep my enthusiasm for playing with statistics.\r\n\r\n\r\n\r\n\r\n",
+      "last_modified": "2021-04-29T13:58:16-06:00"
     },
     {
       "path": "index.html",
       "title": "Backyard Statistics",
       "author": [],
       "contents": "\r\n\r\n\r\n\r\n",
-      "last_modified": "2021-04-29T13:47:42-06:00"
+      "last_modified": "2021-04-29T13:58:18-06:00"
     }
   ],
   "collections": ["posts/posts.json"]
