@@ -1,0 +1,13 @@
+name: "backyardstats"
+title: "Backyard Statistics"
+description: |
+  Backyard Statistics
+base_url: https://backyardstats.org
+output_dir: "_site"
+navbar:
+  right:
+    - text: "Home"
+      href: index.html
+    - text: "About"
+      href: about.html
+output: distill::distill_article
